@@ -2,7 +2,7 @@
 This library was made on the basis of the [Bayesian Online Changepoint Detection](https://arxiv.org/abs/0710.3742) and 
 [Conjugate Bayesian analysis of the Gaussian distribution](https://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf) articles. 
 There are quite a lot of similar libraries on the github. 
-First of all, the goal of understanding the Baysian model was pursued to solve the problems of determining the point of change.
+The primary purpose of writing this library was to understand the work of the Baysian model in solving the problem determining the point of change.
 
 ## Methods for solving the problem Online Change Point Detection
 | Name | Method | Reference |
