@@ -1,4 +1,4 @@
-# Abbout library
+# About library
 This library was made on the basis of the [Bayesian Online Changepoint Detection](https://arxiv.org/abs/0710.3742) and 
 [Conjugate Bayesian analysis of the Gaussian distribution](https://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf) articles. 
 There are quite a lot of similar libraries on the github. 
