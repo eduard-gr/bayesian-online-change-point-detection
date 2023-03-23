@@ -70,9 +70,9 @@ public class BayesianOnlineChangePointDetection {
             outcomes[i] -= evidence;
         }
 
-        logger.debug("{} {}",
-            y,
-            Arrays.toString(outcomes));
+//        logger.debug("{} {}",
+//            y,
+//            Arrays.toString(outcomes));
 
         //Pass message
         this.outcomes = outcomes;
