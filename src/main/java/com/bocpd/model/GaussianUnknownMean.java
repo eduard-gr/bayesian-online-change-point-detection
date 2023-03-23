@@ -77,8 +77,8 @@ public class GaussianUnknownMean implements DistributionModel {
                 x);
         }
 
-        logger.debug("predictive probabilities:{}",
-            Arrays.toString(predictive_probabilities));
+//        logger.debug("predictive probabilities:{}",
+//            Arrays.toString(predictive_probabilities));
 
         return predictive_probabilities;
     }
