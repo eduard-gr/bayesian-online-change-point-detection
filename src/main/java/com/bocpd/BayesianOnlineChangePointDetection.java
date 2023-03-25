@@ -18,6 +18,8 @@ public class BayesianOnlineChangePointDetection {
     private final double probability_occur;
     private final double probability_not_occur;
 
+    private double mean = 0;
+
     public BayesianOnlineChangePointDetection(
             final DistributionModel model,
             final double change_probability
@@ -33,9 +35,9 @@ public class BayesianOnlineChangePointDetection {
         this.probability_not_occur = Math.log(1 - change_probability);
     }
 
-    private void reseat(){
+    private void reseat(double y){
         this.outcomes = new double[]{0.0};
-        this.model.reset();
+        this.model.reset(y);
     }
 
 
@@ -47,8 +49,8 @@ public class BayesianOnlineChangePointDetection {
         final double[] outcomes = new double[posteriors.length + 1];
 
         double change_point_probabilities = 0;
-
         double evidence = 0;
+
         for(int i=0,j=1;i<posteriors.length;i++,j++){
 
             final double probabilities = posteriors[i] + this.outcomes[i];
@@ -60,19 +62,17 @@ public class BayesianOnlineChangePointDetection {
 
             // 5. Calculate change point probabilities.
             change_point_probabilities += Math.exp(probabilities + this.probability_occur);
+
             evidence += Math.exp(probabilities + this.probability_occur);
         }
 
         outcomes[0] = Math.log(change_point_probabilities);
+
         evidence = Math.log(evidence);
 
         for(int i=0;i<outcomes.length;i++) {
             outcomes[i] -= evidence;
         }
-
-//        logger.debug("{} {}",
-//            y,
-//            Arrays.toString(outcomes));
 
         //Pass message
         this.outcomes = outcomes;
@@ -84,8 +84,13 @@ public class BayesianOnlineChangePointDetection {
             }
         }
 
+//        logger.debug("{} {} {}",
+//                y,
+//                max,
+//                Arrays.toString(outcomes));
+
         if(max < this.outcomes.length -1){
-            this.reseat();
+            this.reseat(y);
             return true;
         }
 

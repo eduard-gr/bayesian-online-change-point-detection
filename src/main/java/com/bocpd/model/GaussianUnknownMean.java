@@ -12,10 +12,9 @@ public class GaussianUnknownMean implements DistributionModel {
 
     private static final Logger logger = LogManager.getLogger(GaussianUnknownMean.class);
 
-    private final double mean0;
+    private double mean0;
     private final double var0;
     private final double varx;
-
 
     private double[] posterior_means;
     private double[] posterior_variance;
@@ -25,36 +24,42 @@ public class GaussianUnknownMean implements DistributionModel {
         this.var0 = var0;
         this.varx = varx;
 
+        logger.debug("mean0:{} var0:{} varx:{}",
+                mean0,
+                var0,
+                varx);
+
         this.posterior_means = new double[]{this.mean0};
-        this.posterior_variance = new double[]{1 / this.var0};
+        this.posterior_variance = new double[]{1.0 / this.var0};
     }
 
     @Override
-    public void reset() {
+    public void reset(double y) {
+        this.mean0 = y;
         this.posterior_means = new double[]{this.mean0};
-        this.posterior_variance = new double[]{1 / this.var0};
+        this.posterior_variance = new double[]{1.0 / this.var0};
     }
 
     /**
      * Normal distribution
-     * @param q standard deviation
-     * @param u mean or expextation
+     * @param standard_deviation standard deviation
+     * @param mean mean or expextation
      * @param x observation
      * @return
      */
     private double getNormalDistributionValue(
-        double q,
-        double u,
+        double standard_deviation,
+        double mean,
         double x
     ){
         //https://en.wikipedia.org/wiki/Normal_distribution
-        return Math.log((1 / (q * SQRT2PI)) * Math.pow(Math.E, -0.5 * Math.pow((x-u) / q,2)));
+        return Math.log((1.0 / (standard_deviation * SQRT2PI)) * Math.pow(Math.E, -0.5 * Math.pow((x - mean) / standard_deviation, 2)));
     }
 
     private double getPosteriorStandardDeviation(
         double variance
     ){
-        return Math.sqrt(1. / variance + this.varx);
+        return Math.sqrt(1.0 / variance + this.varx);
     }
 
     @Override
@@ -91,12 +96,12 @@ public class GaussianUnknownMean implements DistributionModel {
         final double[] variances = new double[this.posterior_variance.length + 1];
         final double[] means = new double[this.posterior_means.length + 1];
 
-        variances[0] = 1 / this.var0;
+        variances[0] = 1.0 / this.var0;
         means[0] = this.mean0;
 
         for(int i = 0; i<this.posterior_variance.length; i++){
             //# See eq. 19 in (Murphy 2007).
-            double variance = this.posterior_variance[i] + (1 / this.varx);
+            double variance = this.posterior_variance[i] + (1.0 / this.varx);
             variances[i+1] = variance;
 
             //See eq. 24 in (Murphy 2007).

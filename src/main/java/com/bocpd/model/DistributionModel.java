@@ -2,7 +2,7 @@ package com.bocpd.model;
 
 public interface DistributionModel {
 
-    public void reset();
+    public void reset(double y);
 
     public double[] computePredictiveProbabilities(double y);
 

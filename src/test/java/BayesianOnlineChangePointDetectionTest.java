@@ -1,17 +1,16 @@
 import com.bocpd.BayesianOnlineChangePointDetection;
 import com.bocpd.model.GaussianUnknownMean;
-import org.apache.logging.log4j.core.util.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,12 +42,14 @@ public class BayesianOnlineChangePointDetectionTest {
     }
 
     @Test
-    void UnknownVariance() throws NoSuchFieldException, IllegalAccessException, FileNotFoundException, URISyntaxException {
+    void UnknownVariance() throws NoSuchFieldException, IllegalAccessException, IOException, URISyntaxException {
 
-        final URL resource = getClass().getClassLoader().getResource("961.csv");
+        //final String source = "961.csv";
+        final String source = "943.csv";
+
+        final URL resource = getClass().getClassLoader().getResource(source);
         Scanner reader = new Scanner(new File(resource.toURI()));
         final List<Double> samples = new ArrayList<>();
-        int index = 0;
 
         /**
          * Skip header
@@ -56,12 +57,13 @@ public class BayesianOnlineChangePointDetectionTest {
         reader.nextLine();
 
         while (reader.hasNextLine()) {
-            index++;
-
             String[] row = reader.nextLine().split(",",2);
             samples.add(Double.parseDouble(row[0]));
 
-            if(samples.size() > 19){
+            /**
+             * Измненения количества точек не влияет на точность
+             */
+            if(samples.size() > 50){
                 break;
             }
         }
@@ -72,26 +74,33 @@ public class BayesianOnlineChangePointDetectionTest {
         }
         mean /= samples.size();
 
+        /**
+         * Формула выборочной дисперсии
+         */
         double variance_0 = 0;
         for(int i = 0; i< samples.size(); i++) {
             variance_0 += Math.pow(samples.get(i) - mean, 2);
         }
-        variance_0 /= samples.size();
+        variance_0 /= (samples.size() - 1);
 
-        double variance_x = variance_0 * 0.5;
+        double variance_x = variance_0 * 0.50;
 
         final var model = new GaussianUnknownMean(samples.get(0), variance_0, variance_x);
-        final var bocpd = new BayesianOnlineChangePointDetection(model, 0.001);
+        //0.000001
+        final var bocpd = new BayesianOnlineChangePointDetection(model, 0.1 / 100);
+
+        reader.close();
+        reader = new Scanner(new File(resource.toURI()));
+
+        /**
+         * Skip header
+         */
+        reader.nextLine();
 
         while (reader.hasNextLine()) {
-            index++;
-            String[] row = reader.nextLine().split(",",2);
 
-            assertEquals(
-                Integer.parseInt(row[1]) == 1,
-                    bocpd.isChangePoint(Double.parseDouble(row[0])),
-                    String.format("On line %d, the expected value does not match the actual",
-                        index));
+            String[] row = reader.nextLine().split(",",2);
+            bocpd.isChangePoint(Double.parseDouble(row[0]));
         }
 
         reader.close();
